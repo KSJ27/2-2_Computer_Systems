@@ -3,375 +3,401 @@
 #include<stdbool.h>
 #include<string.h>
 #include<math.h>
+#include <float.h>
 
-typedef struct MyStruct
+//맨 아래 메인함수에서 원하는 기능의 주석를 해제하여 실행해주세요
+
+typedef struct BigFloat
 {
-    char number[1000];
-    char* intNum = 0;
-    char* floatNum = 0;
-    int intsize, floatsize = 0;
-    int fullsingleNum[1000];
-    int intsingleNum[1000];
-    int floatsingleNum[1000];
-    int signCheck = 0;
+    char inputNum[10000];    //입력받은 숫자 문자열
+    char* intNum = 0;       //입력받은 숫자의 정수부분
+    char* floatNum = 0;     //입력받은 숫자의 소수부분
+    int intSize = 0;        //정수부분의 길이
+    int floatSize = 0;      //소수부분의 길이
+    int number[10000];       //실제 값이 저장된 int형 array
+    int signCheck = 0;      //부호를 저장하는 변수: 0이면 양수, 1이면 음수
+}BigFloat;
 
-}MyStruct;
+BigFloat storeNumber(BigFloat bigNumber) {
 
-MyStruct stringtointArray(MyStruct mystruct) {
+    char* token = strtok(bigNumber.inputNum, ".");
 
-    char* token = strtok(mystruct.number, ".");
-
-    mystruct.intNum = token;
+    bigNumber.intNum = token;
     token = strtok(NULL, "");
-    mystruct.floatNum = token;
+    bigNumber.floatNum = token;
 
-
-    if (mystruct.intNum[0] == '-') {
-        mystruct.signCheck = 1;
-        for (int i = 0; i < strlen(mystruct.intNum); i++) {
-            mystruct.intNum[i] = mystruct.intNum[i + 1];
+    if (bigNumber.intNum[0] == '-') {
+        bigNumber.signCheck = 1;
+        for (int i = 0; i < strlen(bigNumber.intNum); i++) {
+            bigNumber.intNum[i] = bigNumber.intNum[i + 1];
         }
     }
 
-    mystruct.intsize = strlen(mystruct.intNum);
-    mystruct.floatsize = strlen(mystruct.floatNum);
+    bigNumber.intSize = strlen(bigNumber.intNum);
+    bigNumber.floatSize = strlen(bigNumber.floatNum);
 
-    for (int i = 0; i < 1000; i++) {
-        mystruct.fullsingleNum[i] = 0;
+    for (int i = 0; i < 10000; i++) {
+        bigNumber.number[i] = 0;
     }
 
-    for (int i = 0; i < mystruct.intsize; i++) {
-        mystruct.fullsingleNum[i] = ((int)mystruct.intNum[i]) - 48;
+    for (int i = 0; i < bigNumber.intSize; i++) {
+        bigNumber.number[i] = ((int)bigNumber.intNum[i]) - 48;
     }
-    for (int i = 0; i < mystruct.floatsize; i++) {
-        mystruct.fullsingleNum[i + 500] = ((int)mystruct.floatNum[i]) - 48;
+    for (int i = 0; i < bigNumber.floatSize; i++) {
+        bigNumber.number[i + 5000] = ((int)bigNumber.floatNum[i]) - 48;
     }
 
-    int tempNum[500];
+    int tempNum[5000];
 
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < 5000; i++) {
         tempNum[i] = 0;
     }
 
-    for (int i = 0; i < mystruct.intsize; i++) {
-        tempNum[i + 500 - mystruct.intsize] = mystruct.fullsingleNum[i];
+    for (int i = 0; i < bigNumber.intSize; i++) {
+        tempNum[i + 5000 - bigNumber.intSize] = bigNumber.number[i];
     }
-    for (int i = 0; i < 500; i++) {
-        mystruct.fullsingleNum[i] = tempNum[i];
+    for (int i = 0; i < 5000; i++) {
+        bigNumber.number[i] = tempNum[i];
     }
 
-    return mystruct;
-
+    return bigNumber;
 }
 
+int showNumber(BigFloat bigNumber) {
+    int firstIntIndex = 0;
+    int lastFloatIndex = 9999;
 
-int addition(MyStruct mystruct1, MyStruct mystruct2) {
+    for (int i = 0; i < 5000; i++) {
+        if (bigNumber.number[i] == 0) firstIntIndex++;
+        else break;
+    }
 
-    int result[1000];
-    int checkBigger = 0;
+    for (int i = 9999; i > 4999; i--) {
+        if (bigNumber.number[i] == 0) lastFloatIndex--;
+        else break;
+    }
+
+    if (firstIntIndex == 5000) firstIntIndex = 4999;
+    if (lastFloatIndex == 4999) lastFloatIndex = 5000;
+
+    if (bigNumber.signCheck == 1) {
+        printf("-");
+    }
+
+    for (int i = firstIntIndex; i < 5000; i++) {
+        printf("%d", bigNumber.number[i]);
+    }
+    printf(".");
+    for (int i = 5000; i <= lastFloatIndex; i++) {
+        printf("%d", bigNumber.number[i]);
+    }
+    printf("\n");
+    return 0;
+}
+
+int addition(BigFloat bigNumber1, BigFloat bigNumber2) {
+
+    int result[10000];       //결과를 저장할 array
     int resultSign = 0;
+    int checkBigger = 0;
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 10000; i++) {
         result[i] = 0;
     }
     //result의 elements를 0으로 초기화
 
-    if (mystruct1.signCheck == 0 && mystruct2.signCheck == 0) {
-        for (int i = 999; i >= 0; i--) {
-            if (result[i] + mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i] <= 9)
-                result[i] += mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i];
+    if (bigNumber1.signCheck == 0 && bigNumber2.signCheck == 0) {
+        for (int i = 9999; i >= 0; i--) {
+            if (result[i] + bigNumber1.number[i] + bigNumber2.number[i] <= 9)
+                result[i] += bigNumber1.number[i] + bigNumber2.number[i];
             else {
-                result[i] = (result[i] + mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i]) % 10;
+                result[i] = (result[i] + bigNumber1.number[i] + bigNumber2.number[i]) % 10;
                 result[i - 1] += 1;
             }
         }
     }
-    else if (mystruct1.signCheck == 1 && mystruct2.signCheck == 0) {
-        for (int i = 0; i < 1000; i++) {
-            if (mystruct1.fullsingleNum[i] > mystruct2.fullsingleNum[i]) {
+    else if (bigNumber1.signCheck == 1 && bigNumber2.signCheck == 0) {
+        for (int i = 0; i < 10000; i++) {
+            if (bigNumber1.number[i] > bigNumber2.number[i]) {
                 checkBigger = 1;
                 break;
             }
-            else if (mystruct1.fullsingleNum[i] < mystruct2.fullsingleNum[i]) {
+            else if (bigNumber1.number[i] < bigNumber2.number[i]) {
                 checkBigger = -1;
                 break;
             }
         }
         if (checkBigger == 1) {
-            for (int i = 999; i >= 0; i--) {
-                if (mystruct1.fullsingleNum[i] >= mystruct2.fullsingleNum[i]) {
-                    result[i] = mystruct1.fullsingleNum[i] - mystruct2.fullsingleNum[i];
+            for (int i = 9999; i >= 0; i--) {
+                if (bigNumber1.number[i] >= bigNumber2.number[i]) {
+                    result[i] = bigNumber1.number[i] - bigNumber2.number[i];
                 }
                 else {
-                    result[i] = (10 + mystruct1.fullsingleNum[i]) - mystruct2.fullsingleNum[i];
-                    mystruct1.fullsingleNum[i - 1] -= 1;
+                    result[i] = (10 + bigNumber1.number[i]) - bigNumber2.number[i];
+                    bigNumber1.number[i - 1] -= 1;
                 }
             }
             resultSign = 1;
         }
         else if (checkBigger == -1) {
-            for (int i = 999; i >= 0; i--) {
-                if (mystruct2.fullsingleNum[i] >= mystruct1.fullsingleNum[i]) {
-                    result[i] = mystruct2.fullsingleNum[i] - mystruct1.fullsingleNum[i];
+            for (int i = 9999; i >= 0; i--) {
+                if (bigNumber2.number[i] >= bigNumber1.number[i]) {
+                    result[i] = bigNumber2.number[i] - bigNumber1.number[i];
                 }
                 else {
-                    result[i] = (10 + mystruct2.fullsingleNum[i]) - mystruct1.fullsingleNum[i];
-                    mystruct2.fullsingleNum[i - 1] -= 1;
+                    result[i] = (10 + bigNumber2.number[i]) - bigNumber1.number[i];
+                    bigNumber2.number[i - 1] -= 1;
                 }
             }
             resultSign = 0;
 
         }
         else if (checkBigger == 0) {
-            printf("Subtraction Output: ");
+            printf("[Addition Output]\n");
             printf("%d", 0);
-            printf("\n");
             return 0;
         }
     }
-    else if ((mystruct2.signCheck == 1 && mystruct1.signCheck == 0)) {
+    else if ((bigNumber2.signCheck == 1 && bigNumber1.signCheck == 0)) {
 
-        for (int i = 0; i < 1000; i++) {
-            if (mystruct1.fullsingleNum[i] > mystruct2.fullsingleNum[i]) {
+        for (int i = 0; i < 10000; i++) {
+            if (bigNumber1.number[i] > bigNumber2.number[i]) {
                 checkBigger = 1;
                 break;
             }
-            else if (mystruct1.fullsingleNum[i] < mystruct2.fullsingleNum[i]) {
+            else if (bigNumber1.number[i] < bigNumber2.number[i]) {
                 checkBigger = -1;
                 break;
             }
         }
         if (checkBigger == 1) {
-            for (int i = 999; i >= 0; i--) {
-                if (mystruct1.fullsingleNum[i] >= mystruct2.fullsingleNum[i]) {
-                    result[i] = mystruct1.fullsingleNum[i] - mystruct2.fullsingleNum[i];
+            for (int i = 9999; i >= 0; i--) {
+                if (bigNumber1.number[i] >= bigNumber2.number[i]) {
+                    result[i] = bigNumber1.number[i] - bigNumber2.number[i];
                 }
                 else {
-                    result[i] = (10 + mystruct1.fullsingleNum[i]) - mystruct2.fullsingleNum[i];
-                    mystruct1.fullsingleNum[i - 1] -= 1;
+                    result[i] = (10 + bigNumber1.number[i]) - bigNumber2.number[i];
+                    bigNumber1.number[i - 1] -= 1;
                 }
             }
             resultSign = 0;
         }
         else if (checkBigger == -1) {
-            for (int i = 999; i >= 0; i--) {
-                if (mystruct2.fullsingleNum[i] >= mystruct1.fullsingleNum[i]) {
-                    result[i] = mystruct2.fullsingleNum[i] - mystruct1.fullsingleNum[i];
+            for (int i = 9999; i >= 0; i--) {
+                if (bigNumber2.number[i] >= bigNumber1.number[i]) {
+                    result[i] = bigNumber2.number[i] - bigNumber1.number[i];
                 }
                 else {
-                    result[i] = (10 + mystruct2.fullsingleNum[i]) - mystruct1.fullsingleNum[i];
-                    mystruct2.fullsingleNum[i - 1] -= 1;
+                    result[i] = (10 + bigNumber2.number[i]) - bigNumber1.number[i];
+                    bigNumber2.number[i - 1] -= 1;
                 }
             }
             resultSign = 1;
         }
         else if (checkBigger == 0) {
-            printf("Addition Output: ");
+            printf("[Addition Output]\n");
             printf("%d", 0);
-            printf("\n");
             return 0;
         }
     }
     else {
-        for (int i = 999; i >= 0; i--) {
-            if (result[i] + mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i] <= 9)
-                result[i] += mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i];
+        for (int i = 9999; i >= 0; i--) {
+            if (result[i] + bigNumber1.number[i] + bigNumber2.number[i] <= 9)
+                result[i] += bigNumber1.number[i] + bigNumber2.number[i];
             else {
-                result[i] = (result[i] + mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i]) % 10;
+                result[i] = (result[i] + bigNumber1.number[i] + bigNumber2.number[i]) % 10;
                 result[i - 1] += 1;
             }
         }
         resultSign = 1;
     }
 
-    printf("Addition Output: ");
-
     int firstIntIndex = 0;
-    int lastFloatIndex = 999;
+    int lastFloatIndex = 9999;
 
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < 5000; i++) {
         if (result[i] == 0) firstIntIndex++;
         else break;
     }
 
-    for (int i = 999; i > 499; i--) {
+    for (int i = 9999; i > 4999; i--) {
         if (result[i] == 0) lastFloatIndex--;
         else break;
     }
 
-    if (firstIntIndex == 500) firstIntIndex = 499;
-    if (lastFloatIndex == 499) lastFloatIndex = 500;
+    if (firstIntIndex == 5000) firstIntIndex = 4999;
+    if (lastFloatIndex == 4999) lastFloatIndex = 5000;
+
+    printf("[Addition Output]\n");
 
     if (resultSign == 1) {
         printf("-");
     }
 
-    for (int i = firstIntIndex; i < 500; i++) {
+    for (int i = firstIntIndex; i < 5000; i++) {
         printf("%d", result[i]);
     }
 
     printf(".");
 
-    for (int i = 500; i <= lastFloatIndex; i++) {
+    for (int i = 5000; i <= lastFloatIndex; i++) {
         printf("%d", result[i]);
     }
     return 0;
 }
 
-int subtraction(MyStruct mystruct1, MyStruct mystruct2) {
+int subtraction(BigFloat bigNumber1, BigFloat bigNumber2) {
 
-    int result[1000];
+    int result[10000];
     int checkBigger = 0;
     int resultSign = 0;
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 10000; i++) {
         result[i] = 0;
     }
     //result의 elements를 0으로 초기화
 
-    if (mystruct1.signCheck == 0 && mystruct2.signCheck == 0) {
-        for (int i = 0; i < 1000; i++) {
-            if (mystruct1.fullsingleNum[i] > mystruct2.fullsingleNum[i]) {
+    if (bigNumber1.signCheck == 0 && bigNumber2.signCheck == 0) {
+        for (int i = 0; i < 10000; i++) {
+            if (bigNumber1.number[i] > bigNumber2.number[i]) {
                 checkBigger = 1;
                 break;
             }
-            else if (mystruct1.fullsingleNum[i] < mystruct2.fullsingleNum[i]) {
+            else if (bigNumber1.number[i] < bigNumber2.number[i]) {
                 checkBigger = -1;
                 break;
             }
         }
         if (checkBigger == 1) {
-            for (int i = 999; i >= 0; i--) {
-                if (mystruct1.fullsingleNum[i] >= mystruct2.fullsingleNum[i]) {
-                    result[i] = mystruct1.fullsingleNum[i] - mystruct2.fullsingleNum[i];
+            for (int i = 9999; i >= 0; i--) {
+                if (bigNumber1.number[i] >= bigNumber2.number[i]) {
+                    result[i] = bigNumber1.number[i] - bigNumber2.number[i];
                 }
                 else {
-                    result[i] = (10 + mystruct1.fullsingleNum[i]) - mystruct2.fullsingleNum[i];
-                    mystruct1.fullsingleNum[i - 1] -= 1;
+                    result[i] = (10 + bigNumber1.number[i]) - bigNumber2.number[i];
+                    bigNumber1.number[i - 1] -= 1;
                 }
             }
             resultSign = 0;
         }
         else if (checkBigger == -1) {
-            for (int i = 999; i >= 0; i--) {
-                if (mystruct2.fullsingleNum[i] >= mystruct1.fullsingleNum[i]) {
-                    result[i] = mystruct2.fullsingleNum[i] - mystruct1.fullsingleNum[i];
+            for (int i = 9999; i >= 0; i--) {
+                if (bigNumber2.number[i] >= bigNumber1.number[i]) {
+                    result[i] = bigNumber2.number[i] - bigNumber1.number[i];
                 }
                 else {
-                    result[i] = (10 + mystruct2.fullsingleNum[i]) - mystruct1.fullsingleNum[i];
-                    mystruct2.fullsingleNum[i - 1] -= 1;
+                    result[i] = (10 + bigNumber2.number[i]) - bigNumber1.number[i];
+                    bigNumber2.number[i - 1] -= 1;
                 }
             }
             resultSign = 1;
         }
         else if (checkBigger == 0) {
-            printf("Subtraction Output: ");
+            printf("[Subtraction Output]\n");
             printf("%d", 0);
-            printf("\n");
             return 0;
         }
     }
-    else if (mystruct1.signCheck == 1 && mystruct2.signCheck == 0) {
-        for (int i = 999; i >= 0; i--) {
-            if (result[i] + mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i] <= 9)
-                result[i] += mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i];
+    else if (bigNumber1.signCheck == 1 && bigNumber2.signCheck == 0) {
+        for (int i = 9999; i >= 0; i--) {
+            if (result[i] + bigNumber1.number[i] + bigNumber2.number[i] <= 9)
+                result[i] += bigNumber1.number[i] + bigNumber2.number[i];
             else {
-                result[i] = (result[i] + mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i]) % 10;
+                result[i] = (result[i] + bigNumber1.number[i] + bigNumber2.number[i]) % 10;
                 result[i - 1] += 1;
             }
         }
         resultSign = 1;
     }
-    else if ((mystruct2.signCheck == 1 && mystruct1.signCheck == 0)) {
-        for (int i = 999; i >= 0; i--) {
-            if (result[i] + mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i] <= 9)
-                result[i] += mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i];
+    else if ((bigNumber2.signCheck == 1 && bigNumber1.signCheck == 0)) {
+        for (int i = 9999; i >= 0; i--) {
+            if (result[i] + bigNumber1.number[i] + bigNumber2.number[i] <= 9)
+                result[i] += bigNumber1.number[i] + bigNumber2.number[i];
             else {
-                result[i] = (result[i] + mystruct1.fullsingleNum[i] + mystruct2.fullsingleNum[i]) % 10;
+                result[i] = (result[i] + bigNumber1.number[i] + bigNumber2.number[i]) % 10;
                 result[i - 1] += 1;
             }
         }
         resultSign = 0;
     }
     else { //둘다 음수인 경우
-        for (int i = 0; i < 1000; i++) {
-            if (mystruct1.fullsingleNum[i] > mystruct2.fullsingleNum[i]) {
+        for (int i = 0; i < 10000; i++) {
+            if (bigNumber1.number[i] > bigNumber2.number[i]) {
                 checkBigger = 1;
                 break;
             }
-            else if (mystruct1.fullsingleNum[i] < mystruct2.fullsingleNum[i]) {
+            else if (bigNumber1.number[i] < bigNumber2.number[i]) {
                 checkBigger = -1;
                 break;
             }
         }
         if (checkBigger == 1) {
-            for (int i = 999; i >= 0; i--) {
-                if (mystruct1.fullsingleNum[i] >= mystruct2.fullsingleNum[i]) {
-                    result[i] = mystruct1.fullsingleNum[i] - mystruct2.fullsingleNum[i];
+            for (int i = 9999; i >= 0; i--) {
+                if (bigNumber1.number[i] >= bigNumber2.number[i]) {
+                    result[i] = bigNumber1.number[i] - bigNumber2.number[i];
                 }
                 else {
-                    result[i] = (10 + mystruct1.fullsingleNum[i]) - mystruct2.fullsingleNum[i];
-                    mystruct1.fullsingleNum[i - 1] -= 1;
+                    result[i] = (10 + bigNumber1.number[i]) - bigNumber2.number[i];
+                    bigNumber1.number[i - 1] -= 1;
                 }
             }
             resultSign = 1;
         }
         else if (checkBigger == -1) {
-            for (int i = 999; i >= 0; i--) {
-                if (mystruct2.fullsingleNum[i] >= mystruct1.fullsingleNum[i]) {
-                    result[i] = mystruct2.fullsingleNum[i] - mystruct1.fullsingleNum[i];
+            for (int i = 9999; i >= 0; i--) {
+                if (bigNumber2.number[i] >= bigNumber1.number[i]) {
+                    result[i] = bigNumber2.number[i] - bigNumber1.number[i];
                 }
                 else {
-                    result[i] = (10 + mystruct2.fullsingleNum[i]) - mystruct1.fullsingleNum[i];
-                    mystruct2.fullsingleNum[i - 1] -= 1;
+                    result[i] = (10 + bigNumber2.number[i]) - bigNumber1.number[i];
+                    bigNumber2.number[i - 1] -= 1;
                 }
             }
             resultSign = 0;
         }
         else if (checkBigger == 0) {
-            printf("Subtraction Output: ");
+            printf("[Subtraction Output]\n");
             printf("%d", 0);
-            printf("\n");
             return 0;
         }
     }
 
-    printf("Subtraction Output: ");
-
     int firstIntIndex = 0;
-    int lastFloatIndex = 999;
+    int lastFloatIndex = 9999;
 
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < 5000; i++) {
         if (result[i] == 0) firstIntIndex++;
         else break;
     }
 
-    for (int i = 999; i > 499; i--) {
+    for (int i = 9999; i > 4999; i--) {
         if (result[i] == 0) lastFloatIndex--;
         else break;
     }
 
-    if (firstIntIndex == 500) firstIntIndex = 499;
-    if (lastFloatIndex == 499) lastFloatIndex = 500;
+    if (firstIntIndex == 5000) firstIntIndex = 4999;
+    if (lastFloatIndex == 4999) lastFloatIndex = 5000;
+
+    printf("[Subtraction Output]\n");
 
     if (resultSign == 1) {
         printf("-");
     }
 
-    for (int i = firstIntIndex; i < 500; i++) {
+    for (int i = firstIntIndex; i < 5000; i++) {
         printf("%d", result[i]);
     }
 
     printf(".");
 
-    for (int i = 500; i <= lastFloatIndex; i++) {
+    for (int i = 5000; i <= lastFloatIndex; i++) {
         printf("%d", result[i]);
     }
 
     return 0;
 }
 
-int multiplication(MyStruct mystruct1, MyStruct mystruct2) {
+int multiplication(BigFloat bigNumber1, BigFloat bigNumber2) {
     int result[100000];
     int maxIntSize = 0;
     int maxFloatSize = 0;
@@ -380,30 +406,30 @@ int multiplication(MyStruct mystruct1, MyStruct mystruct2) {
         result[i] = 0;
     }
 
-    if (mystruct1.intsize > mystruct2.intsize) {
-        maxIntSize = mystruct1.intsize;
+    if (bigNumber1.intSize > bigNumber2.intSize) {
+        maxIntSize = bigNumber1.intSize;
     }
-    else if (mystruct1.intsize < mystruct2.intsize) {
-        maxIntSize = mystruct2.intsize;
+    else if (bigNumber1.intSize < bigNumber2.intSize) {
+        maxIntSize = bigNumber2.intSize;
     }
     else {
-        maxIntSize = mystruct1.intsize;
+        maxIntSize = bigNumber1.intSize;
     }
 
-    if (mystruct1.floatsize > mystruct2.floatsize)
-        maxFloatSize = mystruct1.floatsize;
+    if (bigNumber1.floatSize > bigNumber2.floatSize)
+        maxFloatSize = bigNumber1.floatSize;
     else
-        maxFloatSize = mystruct2.floatsize;
+        maxFloatSize = bigNumber2.floatSize;
 
     //result에 두 수의 각 자리수를 곱한 값을 넣는다
-    for (int i = 499 + maxFloatSize; i >= 500 - maxIntSize; i--) {
-        for (int j = 499 + maxFloatSize; j >= 500 - maxIntSize; j--) {
-            result[49999 + j - 499 + i - 499] += mystruct2.fullsingleNum[i] * mystruct1.fullsingleNum[j];
+    for (int i = 4999 + maxFloatSize; i >= 5000 - maxIntSize; i--) {
+        for (int j = 4999 + maxFloatSize; j >= 5000 - maxIntSize; j--) {
+            result[49999 + j - 4999 + i - 4999] += bigNumber2.number[i] * bigNumber1.number[j];
         }
     }
 
     //result의 각 자리수가 일의 자리수가 되도록 정리한다
-    int totalFloatsize = mystruct1.floatsize + mystruct2.floatsize;
+    int totalFloatsize = bigNumber1.floatSize + bigNumber2.floatSize;
 
     for (int i = 50000 + totalFloatsize; i > 0; i--) {
         result[i - 1] += result[i] / 10;
@@ -428,7 +454,9 @@ int multiplication(MyStruct mystruct1, MyStruct mystruct2) {
     if (lastFloatIndex == 49999) lastFloatIndex = 50000;
 
     //결과 출력
-    if ((mystruct1.signCheck == 1 && mystruct2.signCheck == 0) || (mystruct2.signCheck == 1 && mystruct1.signCheck == 0)) {
+    printf("[Multiplication Output]\n");
+
+    if ((bigNumber1.signCheck == 1 && bigNumber2.signCheck == 0) || (bigNumber2.signCheck == 1 && bigNumber1.signCheck == 0)) {
 
         printf("-");
     }
@@ -445,7 +473,7 @@ int multiplication(MyStruct mystruct1, MyStruct mystruct2) {
     return 0;
 }
 
-int division(MyStruct mystruct1, MyStruct mystruct2) {
+int division(BigFloat bigNumber1, BigFloat bigNumber2) {
     int result[1000];
     int maxIntSize = 0;
     int maxFloatSize = 0;
@@ -455,31 +483,31 @@ int division(MyStruct mystruct1, MyStruct mystruct2) {
     }
     //result의 elements를 0으로 초기화
 
-    if (mystruct1.floatsize >= mystruct2.floatsize) {
-        maxFloatSize = mystruct1.floatsize;
+    if (bigNumber1.floatSize >= bigNumber2.floatSize) {
+        maxFloatSize = bigNumber1.floatSize;
     }
     else {
-        maxFloatSize = mystruct2.floatsize;
+        maxFloatSize = bigNumber2.floatSize;
     }
 
-    if (mystruct1.intsize >= mystruct2.intsize) {
-        maxIntSize = mystruct1.intsize;
+    if (bigNumber1.intSize >= bigNumber2.intSize) {
+        maxIntSize = bigNumber1.intSize;
     }
     else {
-        maxIntSize = mystruct2.intsize;
+        maxIntSize = bigNumber2.intSize;
     }
 
     int checkBigger = 0;
     int subNum = 0;
     int resultIndex = 499;
 
-    for (int i = 0; i < 498; i++) {
-        for (int i = 0; i < 1000; i++) {
-            if (mystruct1.fullsingleNum[i] > mystruct2.fullsingleNum[i]) {
+    for (int i = 0; i < 499; i++) {
+        for (int i = 0; i < 10000; i++) {
+            if (bigNumber1.number[i] > bigNumber2.number[i]) {
                 checkBigger = 1;
                 break;
             }
-            else if (mystruct1.fullsingleNum[i] < mystruct2.fullsingleNum[i]) {
+            else if (bigNumber1.number[i] < bigNumber2.number[i]) {
                 checkBigger = -1;
                 break;
             }
@@ -487,12 +515,12 @@ int division(MyStruct mystruct1, MyStruct mystruct2) {
         }
 
         while (checkBigger == 1) {
-            for (int i = 0; i < 1000; i++) {
-                if (mystruct1.fullsingleNum[i] > mystruct2.fullsingleNum[i]) {
+            for (int i = 0; i < 10000; i++) {
+                if (bigNumber1.number[i] > bigNumber2.number[i]) {
                     checkBigger = 1;
                     break;
                 }
-                else if (mystruct1.fullsingleNum[i] < mystruct2.fullsingleNum[i]) {
+                else if (bigNumber1.number[i] < bigNumber2.number[i]) {
                     checkBigger = -1;
                     break;
                 }
@@ -500,13 +528,13 @@ int division(MyStruct mystruct1, MyStruct mystruct2) {
             }
 
             if (checkBigger == 1) {
-                for (int i = 499 + maxFloatSize; i >= 500 - maxIntSize; i--) {
-                    if (mystruct1.fullsingleNum[i] >= mystruct2.fullsingleNum[i]) {
-                        mystruct1.fullsingleNum[i] = mystruct1.fullsingleNum[i] - mystruct2.fullsingleNum[i];
+                for (int i = 4999 + maxFloatSize; i >= 5000 - maxIntSize; i--) {
+                    if (bigNumber1.number[i] >= bigNumber2.number[i]) {
+                        bigNumber1.number[i] = bigNumber1.number[i] - bigNumber2.number[i];
                     }
                     else {
-                        mystruct1.fullsingleNum[i] = (10 + mystruct1.fullsingleNum[i]) - mystruct2.fullsingleNum[i];
-                        mystruct1.fullsingleNum[i - 1] -= 1;
+                        bigNumber1.number[i] = (10 + bigNumber1.number[i]) - bigNumber2.number[i];
+                        bigNumber1.number[i - 1] -= 1;
                     }
                 }
                 subNum++;
@@ -519,13 +547,13 @@ int division(MyStruct mystruct1, MyStruct mystruct2) {
             break;
         }
 
-        int tempNum2[1000];
+        int tempNum2[10000];
         for (int i = 0; i < 1000; i++) {
             tempNum2[i] = 0;
         }
-        for (int i = 0; i < 999; i++) {
-            tempNum2[i + 1] = mystruct2.fullsingleNum[i];
-            mystruct2.fullsingleNum[i] = tempNum2[i];
+        for (int i = 0; i < 9999; i++) {
+            tempNum2[i + 1] = bigNumber2.number[i];
+            bigNumber2.number[i] = tempNum2[i];
         }
         maxFloatSize++;
 
@@ -533,7 +561,6 @@ int division(MyStruct mystruct1, MyStruct mystruct2) {
 
         resultIndex++;
         subNum = 0;
-        printf("%d\n", resultIndex);
     }
 
     for (int i = 499; i > 0; i--) {
@@ -555,9 +582,11 @@ int division(MyStruct mystruct1, MyStruct mystruct2) {
     }
 
     if (firstIntIndex == 500) firstIntIndex = 499;
-    if (lastFloatIndex == 499) lastFloatIndex = 500;
+    if (lastFloatIndex <= 500) lastFloatIndex = 500;
 
-    if ((mystruct1.signCheck == 1 && mystruct2.signCheck == 0) || (mystruct2.signCheck == 1 && mystruct1.signCheck == 0)) {
+    printf("[Division Output]\n");
+
+    if ((bigNumber1.signCheck == 1 && bigNumber2.signCheck == 0) || (bigNumber2.signCheck == 1 && bigNumber1.signCheck == 0)) {
 
         printf("-");
     }
@@ -567,7 +596,7 @@ int division(MyStruct mystruct1, MyStruct mystruct2) {
 
     printf(".");
 
-    for (int i = 500; i <= resultIndex; i++) {
+    for (int i = 500; i <= lastFloatIndex; i++) {
         printf("%d", result[i]);
     }
 
@@ -576,20 +605,29 @@ int division(MyStruct mystruct1, MyStruct mystruct2) {
 
 int main() {
 
-    MyStruct num1, num2;
+    BigFloat num1, num2;
+    //printf("[float max]\n %e\n\n", FLT_MAX); //가장 큰 floating number를 출력
 
     printf("Input two number: \n");
-    scanf("%s", num1.number);
-    scanf("%s", num2.number);
+    scanf("%s", num1.inputNum);
+    scanf("%s", num2.inputNum);
 
-    num1 = stringtointArray(num1);
-    num2 = stringtointArray(num2);
+    num1 = storeNumber(num1);
+    num2 = storeNumber(num2);
 
 
-    //addition(num1, num2);
-    //subtraction(num1, num2);
-    //multiplication(num1, num2);
-    //division(num1, num2);
+    showNumber(num1);  //num1을 출력
+    showNumber(num2);  //num2를 출력
+
+    //addition(num1, num2);   //덧셈
+    //subtraction(num1, num2); //뺄셈 
+    //multiplication(num1, num2); // 곱셈
+    division(num1, num2); //나눗셈
+
+    //테스트 숫자: 123412341234123412341234.12341234
+    //테스트 숫자: 98989898989898989898989898.9898989898989898989898
+
+    printf("\n");
 
     return 0;
 }
